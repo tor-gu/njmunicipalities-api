@@ -10,13 +10,20 @@ Parameters:
     Description: Arn for torguapi layer (not a layer version, so exclude the version number)
   TorguapiLayerVersion:
     Type: Number
+    Description: Version number for TorgupaiLayer
     MinValue: "3"
   EnvPrefix:
     Type: String
+    Description: Prefix for resource names
+    Default: ""
+  TablenameSuffix:
+    Type: String
+    Description: Suffix for table names
     Default: ""
   ApiRoot:
     Type: String
-    Default: api.tor-gu.com
+    Description: API root
+    Default: https://api.tor-gu.com
 
 Globals:
   Function:
@@ -24,8 +31,8 @@ Globals:
     Tracing: Active
     Environment:
       Variables:
-        TABLE_COUNTIES: !Sub "${EnvPrefix}counties"
-        TABLE_MUNICIPALITIES: !Sub "${EnvPrefix}municipalities"
+        TABLE_COUNTIES: !Sub "${EnvPrefix}counties${TablenameSuffix}"
+        TABLE_MUNICIPALITIES: !Sub "${EnvPrefix}municipalities${TablenameSuffix}"
         API_ROOT: !Ref ApiRoot
     Layers:
       - !Ref CommonLayer
@@ -38,7 +45,7 @@ Resources:
   CountiesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "${EnvPrefix}counties"
+      TableName: !Sub "${EnvPrefix}counties${TablenameSuffix}"
       AttributeDefinitions:
         - AttributeName: row_number
           AttributeType: N
@@ -56,7 +63,7 @@ Resources:
   MunicipalitiesTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: !Sub "${EnvPrefix}municipalities"
+      TableName: !Sub "${EnvPrefix}municipalities${TablenameSuffix}"
       AttributeDefinitions:
         - AttributeName: row_number
           AttributeType: N

@@ -1,7 +1,7 @@
 openapi: '3.0.2'
 info:
   version: '1.0.0'
-  title: 'njmunicipalities-'
+  title: 'njmunicipalities-api'
   description: NJ Municipality names and GEOIDs, from 2000 to 2022
 servers:
   - url: "{protocol}://{server}"

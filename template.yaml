@@ -1,0 +1,203 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  SAM template for njmunicipalities-api 
+
+
+Parameters:
+  TorguapiLayerArn:
+    Type: String
+    Description: Arn for torguapi layer (not a layer version, so exclude the version number)
+  TorguapiLayerVersion:
+    Type: Number
+    MinValue: "3"
+  EnvPrefix:
+    Type: String
+    Default: ""
+  ApiRoot:
+    Type: String
+    Default: api.tor-gu.com
+
+Globals:
+  Function:
+    Timeout: 3
+    Tracing: Active
+    Environment:
+      Variables:
+        TABLE_COUNTIES: !Sub "${EnvPrefix}counties"
+        TABLE_MUNICIPALITIES: !Sub "${EnvPrefix}municipalities"
+        API_ROOT: !Ref ApiRoot
+    Layers:
+      - !Ref CommonLayer
+      - !Sub "${TorguapiLayerArn}:${TorguapiLayerVersion}"
+  Api:
+    TracingEnabled: True
+
+
+Resources:
+  CountiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${EnvPrefix}counties"
+      AttributeDefinitions:
+        - AttributeName: row_number
+          AttributeType: N
+      KeySchema:
+        - AttributeName: row_number
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      ImportSourceSpecification:
+        InputFormat: CSV
+        S3BucketSource:
+          S3Bucket: !Sub "${EnvPrefix}njmunicipalities-data"
+          S3KeyPrefix: counties
+  MunicipalitiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${EnvPrefix}municipalities"
+      AttributeDefinitions:
+        - AttributeName: row_number
+          AttributeType: N
+      KeySchema:
+        - AttributeName: row_number
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      ImportSourceSpecification:
+        InputFormat: CSV
+        S3BucketSource:
+          S3Bucket: !Sub "${EnvPrefix}njmunicipalities-data"
+          S3KeyPrefix: municipalities
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: njmunicipalities_common_layer
+      Description: common_layer library
+      ContentUri: common_layer
+      CompatibleRuntimes:
+        - python3.9
+    Metadata:
+      BuildMethod: python3.9
+
+  CountiesFunction:
+    Type: AWS::Serverless::Function
+    Properties:    
+      CodeUri: counties/
+      FunctionName: !Sub "${EnvPrefix}njmunicipalities-api-counties"
+      Handler: app.counties_api.counties_handler
+      Runtime: python3.9
+      Events:
+        GetCounties:
+          Type: Api
+          Properties:
+            Path: /nj/counties
+            Method: GET
+            RestApiId: !Ref MunicipalitiesApi
+        GetCounty:
+          Type: Api
+          Properties:
+            Path: /nj/counties/{GEOID}
+            Method: GET
+            RestApiId: !Ref MunicipalitiesApi
+      Policies:
+      - Statement:
+        - Sid: ReadPolicy
+          Effect: Allow
+          Action:
+          - dynamodb:Scan
+          Resource: !GetAtt CountiesTable.Arn
+  MunicipalitiesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: municipalities/
+      FunctionName: !Sub "${EnvPrefix}njmunicipalities-api-municipalities"
+      Handler: app.municipalities_api.municipalities_handler
+      Runtime: python3.9
+      Events:
+        GetMunicipalities:
+          Type: Api
+          Properties:
+            Path: /nj/municipalities
+            Method: GET
+            RestApiId: !Ref MunicipalitiesApi
+        GetMunicipalitiesByYear:
+          Type: Api
+          Properties:
+            Path: /nj/municipalities/{year}
+            Method: GET
+            RestApiId: !Ref MunicipalitiesApi
+        GetMunicipality:
+          Type: Api
+          Properties:
+            Path: /nj/municipalities/{year}/{GEOID}
+            Method: GET
+            RestApiId: !Ref MunicipalitiesApi
+      Policies:
+      - Statement:
+        - Sid: ReadPolicy
+          Effect: Allow
+          Action:
+          - dynamodb:Scan
+          Resource: !GetAtt MunicipalitiesTable.Arn
+  XREFsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: municipalities/
+      FunctionName: !Sub "${EnvPrefix}njmunicipalities-api-xrefs"
+      Handler: app.municipalities_api.xref_handler
+      Runtime: python3.9
+      Events:
+        GetXREFs:
+          Type: Api
+          Properties:
+            Path: /nj/municipality_xrefs/{year_ref}/{year}
+            Method: GET
+            RestApiId: !Ref MunicipalitiesApi
+      Policies:
+      - Statement:
+        - Sid: ReadPolicy
+          Effect: Allow
+          Action:
+          - dynamodb:Scan
+          Resource: !GetAtt MunicipalitiesTable.Arn
+  MunicipalitiesApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Name: MunicipalitiesApi      
+      DefinitionBody:
+        Fn::Transform:
+          Name: AWS::Include
+          Parameters:
+            Location: njmunicipalities-openapi.yaml
+Outputs:
+  CountiesFunction:
+    Description: "Counties Lambda Function ARN"
+    Value: !GetAtt CountiesFunction.Arn
+  CountiesFunctionIamRole:
+    Description: "Implicit IAM Role created for counties function"
+    Value: !GetAtt CountiesFunctionRole.Arn
+  MunicipalitiesFunction:
+    Description: "Municipalities Lambda Function ARN"
+    Value: !GetAtt MunicipalitiesFunction.Arn
+  MunicipalitiesFunctionIamRole:
+    Description: "Implicit IAM Role created for municipalities function"
+    Value: !GetAtt MunicipalitiesFunctionRole.Arn
+  XREFsFunction:
+    Description: "XREFs Lambda Function ARN"
+    Value: !GetAtt XREFsFunction.Arn
+  XREFsFunctionIamRole:
+    Description: "Implicit IAM Role created for XREFs function"
+    Value: !GetAtt XREFsFunctionRole.Arn
+  CountiesFunctionApiGateway:
+    Description: "API Gateway endpoint URL for Prod stage for counties"
+    Value: !Sub "https://${MunicipalitiesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/nj/counties/"
+  MunicipalitiesFunctionApiGateway:
+    Description: "API Gateway endpoint URL for Prod stage for municipalities"
+    Value: !Sub "https://${MunicipalitiesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/nj/municipalities/"
+  XREFsFunctionApiGateway:
+    Description: "API Gateway endpoint URL for Prod stage for xrefs"
+    Value: !Sub "https://${MunicipalitiesApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/nj/municipality_xrefs/"

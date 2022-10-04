@@ -1,0 +1,15 @@
+{
+    "python.analysis.extraPaths": [
+        "./common_layer",
+        "./torguapi_layer"
+    ],
+    "python.envFile": "${workspaceFolder}/.envs",
+    "python.testing.pytestArgs": [
+        "-v",
+        "--cov=src",
+        "--cov-report=term",
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+}

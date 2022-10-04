@@ -1,0 +1,485 @@
+openapi: '3.0.2'
+info:
+  version: '1.0.0'
+  title: 'njmunicipalities-'
+  description: NJ Municipality names and GEOIDs, from 2000 to 2022
+servers:
+  - url: "{protocol}://{server}"
+    variables:
+      protocol:
+        default: https
+        enum:
+          - https
+          - http
+      server:
+        default: api.tor-gu.com
+paths:
+  /nj/counties:
+    summary: Get all NJ counties
+    parameters:
+    - $ref: '#/components/parameters/pageNumber'
+    - $ref: '#/components/parameters/pageSize'
+    get:
+      responses:
+        '200':
+          description: All NJ counties
+          content:
+            'application/vnd.api+json':
+              schema:
+                $ref: '#/components/schemas/success'
+              example:
+                data:
+                - {"GEOID": "34007", "county": "Camden County"}
+                - {"GEOID": "34009", "county": "Cape may County"}
+                - {"GEOID": "34011", "county": "Cumberland County"}
+                links:
+                  self: https://api.tor-gu.com/nj/counties?page_number=2&page_size=3
+                  previous: https://api.tor-gu.com/nj/counties?page_number=1&page_size=3
+                  next: https://api.tor-gu.com/nj/counties?page_number=3&page_size=3
+                meta:
+                  record_count: 21
+                  page_count: 7
+        '400':
+          description: Bad Request
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '500':
+          description: Internal Server Error
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CountiesFunction.Arn}/invocations"
+        responses:
+          default:
+            statusCode: "201"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"      
+  /nj/counties/{GEOID}:
+    summary: Get a NJ county by GEOID/FIPS code
+    parameters:
+    - $ref: '#/components/parameters/countyGEOID'
+    get:
+      responses:
+        '200':
+          description: The county corresponding to the provided 'GEOID'
+          content:
+            'application/vnd.api+json':
+              schema:
+                $ref: '#/components/schemas/success'
+              example:
+                data:
+                  - {"GEOID": "34001", "county": "Atlantic County"}
+                links: {"self": "https://api.tor-gu.com/nj/counties/34001"}
+        '400':
+          description: Bad Request
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '500':
+          description: Internal Server Error
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CountiesFunction.Arn}/invocations"
+        responses:
+          default:
+            statusCode: "201"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"      
+  /nj/municipalities:
+    summary: Get all NJ municipalities
+    parameters:
+    - $ref: '#/components/parameters/pageNumber'
+    - $ref: '#/components/parameters/pageSize'
+    get:
+      responses:
+        '200':
+          description: All NJ municipalities
+          content:
+            'application/vnd.api+json':
+              schema:
+                $ref: '#/components/schemas/success'
+              example:
+                data:
+                - {"year": 2022, "GEOID": "3400108680", "county": "Atlantic County", "municipality": "Buena borough"}
+                - {"year": 2022, "GEOID": "3400108710", "county": "Atlantic County", "municipality": "Buena Vista township"}
+                - {"year": 2022, "GEOID": "3400115160", "county": "Atlantic County", "municipality": "Corbin City city"}
+                links:
+                  self: https://api.tor-gu.com/nj/municipalities?page_number=2&page_size=3
+                  previous: https://api.tor-gu.com/nj/municipalities?page_number=1&page_size=3
+                  next: https://api.tor-gu.com/nj/municipalities?page_number=3&page_size=3
+                meta:
+                  record_count: 564
+                  page_count: 188
+        '400':
+          description: Bad Request
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '500':
+          description: Internal Server Error
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MunicipalitiesFunction.Arn}/invocations"
+        responses:
+          default:
+            statusCode: "201"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"      
+  /nj/municipalities/{year}:
+    summary: Get all NJ municipalities for a specified year.
+    parameters:
+    - $ref: '#/components/parameters/year'
+    - $ref: '#/components/parameters/pageNumber'
+    - $ref: '#/components/parameters/pageSize'
+    get:
+      responses:
+        '200':
+          description: All NJ municipalities for the specified year
+          content:
+            'application/vnd.api+json':
+              schema:
+                $ref: '#/components/schemas/success'
+              example:
+                data:
+                - {"year": 2000, "GEOID": "3400108680", "county": "Atlantic County", "municipality": "Buena borough"}
+                - {"year": 2000, "GEOID": "3400108710", "county": "Atlantic County", "municipality": "Buena Vista township"}
+                - {"year": 2000, "GEOID": "3400115160", "county": "Atlantic County", "municipality": "Corbin City city"}
+                links:
+                  self: https://api.tor-gu.com/nj/municipalities/2000?page_number=2&page_size=3
+                  previous: https://api.tor-gu.com/nj/municipalities/2000?page_number=1&page_size=3
+                  next: https://api.tor-gu.com/nj/municipalities/2000?page_number=3&page_size=3
+                meta:
+                  record_count: 566
+                  page_count: 188
+        '400':
+          description: Bad Request
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '500':
+          description: Internal Server Error
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MunicipalitiesFunction.Arn}/invocations"
+        responses:
+          default:
+            statusCode: "201"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"      
+
+  /nj/municipalities/{year}/{GEOID}:
+    summary: Get a NJ municipality by year and GEOID/FIPS code
+    parameters:
+    - $ref: '#/components/parameters/year'
+    - $ref: '#/components/parameters/municipalityGEOID'
+    get:
+      responses:
+        '200':
+          description: The municipality corresponding to the provided 'year' and 'GEOID'
+          content:
+            'application/vnd.api+json':
+              schema:
+                $ref: '#/components/schemas/success'
+              example:
+                data:
+                - {"year": 2020, "GEOID": "3400108710", "county": "Atlantic County", "municipality": "Buena Vista township"}
+                links: {"self": "https://api.tor-gu.com/nj/municipalities/2010/3400108710"}
+        '400':
+          description: Bad Request
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '500':
+          description: Internal Server Error
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MunicipalitiesFunction.Arn}/invocations"
+        responses:
+          default:
+            statusCode: "201"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"      
+  /nj/municipality_xrefs/{year_ref}/{year}:
+    summary: Get a table of GEOID/FIPS cross references between 'year' and 'year_ref'
+    parameters:
+    - $ref: '#/components/parameters/year'
+    - $ref: '#/components/parameters/year_ref'
+    - $ref: '#/components/parameters/pageNumber'
+    - $ref: '#/components/parameters/pageSize'
+    get:
+      responses:
+        '200':
+          description: The GEOID cross reference table for 'year' and 'year_ref'
+          content:
+            'application/vnd.api+json':
+              schema:
+                $ref: '#/components/schemas/success'
+              example:
+                data:
+                - {"year_ref":2000, "year":2022, "GEOID_ref": "3400108680", "GEOID": "3400108680"}
+                - {"year_ref":2000, "year":2022, "GEOID_ref": "3400108710", "GEOID": "3400108710"}
+                - {"year_ref":2000, "year":2022, "GEOID_ref": "3400115160", "GEOID": "3400115160"}
+                links:
+                  self: https://api.tor-gu.com/nj/municipality_xrefs/2000/2022?page_number=2&page_size=3"
+                  previous: https://api.tor-gu.com/nj/municipality_xrefs/2000/2022?page_number=1&page_size=3"
+                  next: https://api.tor-gu.com/nj/municipality_xrefs/2000/2022?page_number=3&page_size=3"
+                meta:
+                  record_count: 564
+                  page_count: 188
+        '400':
+          description: Bad Request
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+        '500':
+          description: Internal Server Error
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: '#/components/schemas/failure'          
+      x-amazon-apigateway-integration:
+        uri: 
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${XREFsFunction.Arn}/invocations"
+        responses:
+          default:
+            statusCode: "201"
+        passthroughBehavior: "when_no_match"
+        httpMethod: "POST"
+        contentHandling: "CONVERT_TO_TEXT"
+        type: "aws_proxy"      
+components:
+  schemas:
+    success:
+      type: object
+      required:
+        - data
+        - links
+      properties:
+        data:
+          $ref: "#/components/schemas/data"
+        links:
+          $ref: "#/components/schemas/links"
+    data:
+      oneOf:
+        - type: array
+          items:
+            $ref: '#/components/schemas/county'
+        - type: array
+          items:
+            $ref: '#/components/schemas/municipality'
+    links:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/link"
+    link:
+      type: string
+      format: uri-reference
+    countyGEOID:
+      description: County GEOID/FIPS identifier from the US Census
+      type: string
+      example: 34001 
+    countyName:
+      description: County name
+      type: string
+      example: Atlantic County
+    county:
+      type: object
+      required:
+        - GEOID
+        - county
+      properties:
+        GEOID:
+          $ref: '#/components/schemas/countyGEOID'
+        county:
+          $ref: '#/components/schemas/countyName'
+    municipalityGEOID:
+      description: Municipality GEOID/FIPS identifier from the US Census
+      type: string
+      example: 3400100100
+    municipalityName:
+      description: Municipality name
+      type: string
+      example: Abescon city
+    municipality:
+      type: object
+      required:
+        - year
+        - GEOID
+        - county
+        - municipality
+      properties:
+        year:
+          type: integer
+          example: 2022
+        GEOID:
+          $ref: '#/components/schemas/municipalityGEOID'
+        county:
+          $ref: '#/components/schemas/countyName'
+        municipality:
+          $ref: '#/components/schemas/municipalityName'
+    XREF:
+      type: object
+      required:
+        - year
+        - year_ref
+        - GEOID
+        - GEOID_ref
+      properties:
+        year:
+          type: integer
+        year_ref:
+          type: integer
+        GEOID:
+          $ref: '#/components/schemas/municipalityGEOID'
+        GEOID_ref:
+          $ref: '#/components/schemas/municipalityGEOID'
+    error:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: "404"
+        detail:
+          type: string
+          example: "Item not found"
+    failure:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/error'
+  parameters:
+    pageSize:
+      name: page_size
+      in: query
+      description: Maximum number of results to return in a single reply
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 100
+        example: 100
+    pageNumber:
+      name: page_number
+      in: query
+      description: Page number
+      required: false
+      schema:
+        type: integer
+        format: int32  
+        default: 1
+        example: 1
+    year:
+      name: year
+      in: path
+      description: Year to use for municipality list, municipality name, and GEOID.
+      required: true
+      schema:
+        type: integer
+        example: 2022
+        minimum: 2000
+        maximum: 2022
+    year_ref:
+      name: year_ref
+      in: path
+      description: Reference year to use for municipality list, municipality name, and GEOID.
+      required: true
+      schema:
+        type: integer
+        example: 2000
+        minimum: 2000
+        maximum: 2022
+    countyGEOID:
+      name: GEOID
+      in: path
+      description: County GEOID/FIPS identifier from the US Census
+      required: true
+      schema:
+        type: string
+        example: 34001
+    municipalityGEOID:
+      name: GEOID
+      in: path
+      description: Municipality GEOID/FIPS identifier from the US Census
+      required: true
+      schema:
+        type: string
+        example: 3400108710
+

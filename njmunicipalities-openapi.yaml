@@ -2,7 +2,12 @@ openapi: '3.0.2'
 info:
   version: '1.0.0'
   title: 'njmunicipalities-api'
-  description: NJ Municipality names and GEOIDs, from 2000 to 2022
+  description: >
+    # NJ Municipality names and GEOIDs, from 2000 to 2022
+
+    Names and US Census GEOID/FIPS codes for every NJ county and muncipality from 
+    2000 to 2022.
+
 servers:
   - url: "{protocol}://{server}"
     variables:
@@ -13,6 +18,11 @@ servers:
           - http
       server:
         default: api.tor-gu.com
+tags:
+- name: counties
+  description: NJ Counties
+- name: municipalities
+  description: NJ Municipalities
 paths:
   /nj/counties:
     summary: Get all NJ counties
@@ -57,6 +67,8 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/failure'          
+      tags:
+      - counties
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CountiesFunction.Arn}/invocations"
@@ -101,6 +113,8 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/failure'          
+      tags:
+      - counties
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CountiesFunction.Arn}/invocations"
@@ -154,6 +168,8 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/failure'          
+      tags:
+      - municipalities
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MunicipalitiesFunction.Arn}/invocations"
@@ -208,6 +224,8 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/failure'          
+      tags:
+      - municipalities
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MunicipalitiesFunction.Arn}/invocations"
@@ -254,6 +272,8 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/failure'          
+      tags:
+      - municipalities
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${MunicipalitiesFunction.Arn}/invocations"
@@ -309,6 +329,8 @@ paths:
             application/vnd.api+json:
               schema:
                 $ref: '#/components/schemas/failure'          
+      tags:
+      - municipalities
       x-amazon-apigateway-integration:
         uri: 
           Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${XREFsFunction.Arn}/invocations"

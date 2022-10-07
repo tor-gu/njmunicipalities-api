@@ -185,8 +185,8 @@ Resources:
                     {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${PipelineExecutionRole}"},
                     {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRole}"},
                     {"name": "ENV_BUCKET", "value": "${ArtifactBucket}"},
-                    {"name": "ENV_TORGUAPI_LAYER_ARN", "value": "${TorgupaiLayerArn}"},
-                    {"name": "ENV_TORGUAPI_LAYER_VERSION", "value": "${TorguapiLayerVersion"},
+                    {"name": "ENV_TORGUAPI_LAYER_ARN", "value": "${TorguapiLayerArn}"},
+                    {"name": "ENV_TORGUAPI_LAYER_VERSION", "value": "${TorguapiLayerVersion}"},
                     {"name": "ENV_ENV_PREFIX", "value": "${EnvPrefix}"},
                     {"name": "ENV_TABLENAME_SUFFIX", "value": "${TablenameSuffix}"},
                     {"name": "ENV_API_ROOT", "value": "${ApiRoot}"}
@@ -479,5 +479,5 @@ Outputs:
     Description: Execution role for cloudformation
     Value: !Ref CloudFormationExecutionRole
   ArtifactBucket:
-    Descriptiion: S3 bucket name for code build artifacts
+    Description: S3 bucket name for code build artifacts
     Value: !Ref ArtifactBucket

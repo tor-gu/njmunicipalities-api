@@ -18,7 +18,7 @@ Parameters:
   Region:
     Type: String
     Default: "us-east-1"
-  StackName:
+  DeployStackName:
     Type: String
   PipelineExecutionRole:
     Type: String
@@ -181,7 +181,7 @@ Resources:
                   [
                     {"name": "ENV_TEMPLATE", "value": "packaged.yaml"},
                     {"name": "ENV_REGION", "value": "${Region}"},
-                    {"name": "ENV_STACK_NAME", "value": "${StackName}"},
+                    {"name": "ENV_STACK_NAME", "value": "${DeployStackName}"},
                     {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${PipelineExecutionRole}"},
                     {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRole}"},
                     {"name": "ENV_BUCKET", "value": "${ArtifactBucket}"},
@@ -481,3 +481,13 @@ Outputs:
   ArtifactBucket:
     Description: S3 bucket name for code build artifacts
     Value: !Ref ArtifactBucket
+  DeployStackName:
+    Description: The name of the stack we are deploying
+    Value: !Ref DeployStackName
+  TorguapiLayerArn:
+    Description: Arn for torguapi layer (not a layer version, so exclude the version number)
+    Value: !Ref TorguapiLayerArn
+  TorguapiLayerVersion:
+    Description: Version number for TorgupaiLayer
+    Value: !Ref TorguapiLayerVersion
+

@@ -20,6 +20,7 @@ Parameters:
     Default: "us-east-1"
   DeployStackName:
     Type: String
+    Default: ""
   PipelineExecutionRole:
     Type: String
     Default: ""
@@ -35,10 +36,12 @@ Parameters:
   TorguapiLayerArn:
     Type: String
     Description: Arn for torguapi layer (not a layer version, so exclude the version number)
+    Default: ""
   TorguapiLayerVersion:
     Type: Number
     Description: Version number for TorgupaiLayer
-    MinValue: "3"
+    Default: "4"
+    MinValue: "4"
   EnvPrefix:
     Type: String
     Description: Prefix for resource names

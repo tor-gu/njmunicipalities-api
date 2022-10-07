@@ -243,6 +243,7 @@ $RECYCLE.BIN/
 
 # AWS stuff
 samconfig*.toml
+pipeconfig*.toml
 .aws-sam/
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

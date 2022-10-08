@@ -9,10 +9,10 @@ phases:
   build:
     commands:
       - echo 'Downloading TorguapiLayer.zip'
-      - URL=$(aws lambda get-layer-version \
-            --layer-name ${ENV_TORGUAPI_LAYER_ARN} \
+      - URL=$(aws lambda get-layer-version
+            --layer-name ${ENV_TORGUAPI_LAYER_ARN}
             --version-number ${ENV_TORGUAPI_LAYER_VERSION}
-            --query Content.Location \
+            --query Content.Location
             --output text)
       - curl $URL -o TorguapiLayer.zip    
       - echo 'Unzipping TorguapiLayer.zip'

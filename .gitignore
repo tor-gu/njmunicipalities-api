@@ -246,4 +246,8 @@ samconfig*.toml
 pipeconfig*.toml
 .aws-sam/
 
+# Torguapi stuff (potentially used for local and pipeline unit tests)
+TorguapiLayer.zip
+torguapi/
+
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

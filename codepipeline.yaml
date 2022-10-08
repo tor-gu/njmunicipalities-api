@@ -121,7 +121,9 @@ Resources:
                   {
                     "CodeStarConnectionArn": "${CodeStarConnectionArn}",
                     "PipelineExecutionRole": "${PipelineExecutionRole}",
-                    "CloudFormationExecutionRole": "${CloudFormationExecutionRole}"
+                    "CloudFormationExecutionRole": "${CloudFormationExecutionRole}",
+                    "TorguapiLayerVersion": "${TorguapiLayerVersion}",
+                    "TorguapiLayerArn": "${TorguapiLayerArn}"
                   }
               InputArtifacts:
                 - Name: SourceCodeAsZip

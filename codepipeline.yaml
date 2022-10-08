@@ -125,7 +125,7 @@ Resources:
                     "TorguapiLayerVersion": "${TorguapiLayerVersion}",
                     "TorguapiLayerArn": "${TorguapiLayerArn}",
                     "DeployStackName": "${DeployStackName}",
-                    "EnvPrefix	": "${EnvPrefix	}",
+                    "EnvPrefix": "${EnvPrefix}",
                     "TablenameSuffix": "${TablenameSuffix}"
                   }
               InputArtifacts:

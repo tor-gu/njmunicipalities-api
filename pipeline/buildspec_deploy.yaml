@@ -17,7 +17,7 @@ phases:
                     --no-fail-on-empty-changeset
                     --role-arn ${ENV_CLOUDFORMATION_EXECUTION_ROLE}
                     --parameter-overrides \
-                          TorgupaiLayerArn=${ENV_TORGUAPI_LAYER_ARN} \
+                          TorguapiLayerArn=${ENV_TORGUAPI_LAYER_ARN} \
                           TorguapiLayerVersion=${ENV_TORGUAPI_LAYER_VERSION} \
                           EnvPrefix=\"${ENV_ENV_PREFIX}\"" \
                           TablenameSuffix=\"${ENV_TABLENAME_SUFFIX}\"" \

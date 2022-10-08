@@ -123,7 +123,10 @@ Resources:
                     "PipelineExecutionRole": "${PipelineExecutionRole}",
                     "CloudFormationExecutionRole": "${CloudFormationExecutionRole}",
                     "TorguapiLayerVersion": "${TorguapiLayerVersion}",
-                    "TorguapiLayerArn": "${TorguapiLayerArn}"
+                    "TorguapiLayerArn": "${TorguapiLayerArn}",
+                    "DeployStackName": "${DeployStackName}",
+                    "EnvPrefix	": "${EnvPrefix	}",
+                    "TablenameSuffix": "${TablenameSuffix}"
                   }
               InputArtifacts:
                 - Name: SourceCodeAsZip
@@ -509,4 +512,10 @@ Outputs:
   TorguapiLayerVersion:
     Description: Version number for TorgupaiLayer
     Value: !Ref TorguapiLayerVersion
+  EnvPrefix:
+    Description: Prefix for resource names
+    Value: !Ref EnvPrefix
+  TablenameSuffix:
+    Description: Suffix for table names
+    Value: !Ref TablenameSuffix
 

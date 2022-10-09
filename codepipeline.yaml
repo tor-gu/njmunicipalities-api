@@ -506,6 +506,9 @@ Outputs:
   DeployStackName:
     Description: The name of the stack we are deploying
     Value: !Ref DeployStackName
+  ApiRoot:
+    Description: API root
+    Value: !Ref ApiRoot    
   TorguapiLayerArn:
     Description: Arn for torguapi layer (not a layer version, so exclude the version number)
     Value: !Ref TorguapiLayerArn

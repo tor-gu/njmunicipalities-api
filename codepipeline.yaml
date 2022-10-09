@@ -125,6 +125,7 @@ Resources:
                     "TorguapiLayerVersion": "${TorguapiLayerVersion}",
                     "TorguapiLayerArn": "${TorguapiLayerArn}",
                     "DeployStackName": "${DeployStackName}",
+                    "ApiRoot": "${ApiRoot}",
                     "EnvPrefix": "${EnvPrefix}",
                     "TablenameSuffix": "${TablenameSuffix}"
                   }

@@ -81,7 +81,7 @@ Resources:
   CommonLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      LayerName: njmunicipalities_common_layer
+      LayerName: !Sub "${EnvPrefix}njmunicipalities_common_layer"
       Description: common_layer library
       ContentUri: common_layer
       CompatibleRuntimes:

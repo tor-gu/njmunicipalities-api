@@ -490,18 +490,10 @@ Outputs:
     Condition: CreateConnection
     Description: The Arn of AWS CodeStar Connection used to connect to external code repositories.
     Value: !Ref CodeStarConnection
-  PipelineExecutionRole:
-    Description: Execution role for pipeline
-    Value: !Ref PipelineExecutionRole
-  CloudFormationExecutionRole:
-    Description: Execution role for cloudformation
-    Value: !Ref CloudFormationExecutionRole
-  ArtifactBucket:
-    Description: S3 bucket name for code build artifacts
-    Value: !Ref ArtifactBucket
-  DeployStackName:
-    Description: The name of the stack we are deploying
-    Value: !Ref DeployStackName
-  ApiRoot:
-    Description: API root
-    Value: !Ref ApiRoot    
+  EnvPrefix:
+    Description: Prefix for resource names
+    Value: !Ref EnvPrefix
+  TablenameSuffix:
+    Description: Suffix for table names
+    Value: !Ref TablenameSuffix
+

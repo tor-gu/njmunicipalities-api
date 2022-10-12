@@ -505,16 +505,3 @@ Outputs:
   ApiRoot:
     Description: API root
     Value: !Ref ApiRoot    
-  TorguapiLayerArn:
-    Description: Arn for torguapi layer (not a layer version, so exclude the version number)
-    Value: !Ref TorguapiLayerArn
-  TorguapiLayerVersion:
-    Description: Version number for TorgupaiLayer
-    Value: !Ref TorguapiLayerVersion
-  EnvPrefix:
-    Description: Prefix for resource names
-    Value: !Ref EnvPrefix
-  TablenameSuffix:
-    Description: Suffix for table names
-    Value: !Ref TablenameSuffix
-

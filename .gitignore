@@ -243,7 +243,7 @@ $RECYCLE.BIN/
 
 # AWS stuff
 samconfig*.toml
-pipeconfig*.toml
+pipeline-update*.sh
 .aws-sam/
 
 # Torguapi stuff (potentially used for local and pipeline unit tests)

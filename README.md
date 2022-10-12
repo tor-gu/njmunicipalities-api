@@ -141,14 +141,15 @@ In addition to the requirements above, you will need to have execution
 roles for the pipeline (`PipelineExecutionRole`) and for the deployment
 itself (`CloudFormationExecutionRole`).
 
-    aws cloudformation update-stack --stack-name MyPiplineStackName \
+    aws cloudformation deploy --stack-name MyPiplineStackName \
         --template-body file://codepipeline.yaml                    \
         --capabilities CAPABILITY_IAM                               \
         --parameters \
-            "PipelineExecutionRole=arn:aws:iam::123456789012:role/MyPipelineExecutionRole",             \
-            "CloudFormationExecutionRole=arn:aws:iam::123456789012:role/MyCloudFormationExecutionRole", \
-            "ArtifactBucket=MyS3ArtifactsBucket",                                                       \
-            "DeployStackName=MyStackName",                                                              \
-            "TorguapiLayerArn=arn:aws:lambda:us-east-1:123456789012:layer:layer_torguapi",              \
-            "TorguapiLayerVersion=1",                                                                   \
-            "ApiRoot=https://api.example.com"
+            ParameterKey=ArtifactBucket,ParameterValue=MyArtifactBucket \
+            ParameterKey=PipelineExecutionRole,ParameterValue=arn:aws:iam::123456789012:role/MyPipelineExecutionRole \
+            ParameterKey=CloudFormationExecutionRole,ParameterValue=arn:aws:iam::123456789012:role/MyCloudFormationExecutionRole \
+            ParameterKey=Region,ParameterValue=us-east-1 \
+            ParameterKey=DeployStackName,ParameterValue=MyStackName \
+            ParameterKey=TorguapiLayerArn,ParameterValue=arn:aws:lambda:us-east-1:123456789012:layer:layer_torguapi \
+            ParameterKey=TorguapiLayerVersion,ParameterValue=1 \
+            ParameterKey=ApiRoot,ParameterValue=https://api.example.com

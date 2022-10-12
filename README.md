@@ -62,7 +62,7 @@ municipalities_2022 = load_as_df("https://api.tor-gu.com/nj/municipalities/2022"
 | 2022 | 3400108710 | Atlantic County | Buena Vista township |
 | 2022 | 3400115160 | Atlantic County | Corbin City city     |
 
-The ‘municipality\_xrefs’ endpoint works similarly. As an example, let’s
+The `municipality_xrefs` endpoint works similarly. As an example, let’s
 also retrieve the 2000 municipality table along with the 2022/2000
 cross-reference table, and take a look at the changes in NJ
 municipalties between 2000 and 2022.

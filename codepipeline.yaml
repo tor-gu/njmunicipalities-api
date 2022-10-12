@@ -115,6 +115,8 @@ Resources:
                     "MainGitBranch": "${MainGitBranch}",
                     "PipelineExecutionRole": "${PipelineExecutionRole}",
                     "CloudFormationExecutionRole": "${CloudFormationExecutionRole}",
+                    "ArtifactBucket", "${ArtifactBucket}",
+                    "Region": "${Region}",                    
                     "TorguapiLayerVersion": "${TorguapiLayerVersion}",
                     "TorguapiLayerArn": "${TorguapiLayerArn}",
                     "DeployStackName": "${DeployStackName}",

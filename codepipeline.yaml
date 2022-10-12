@@ -11,37 +11,29 @@ Parameters:
     Default: "tor-gu/njmunicipalities-api"
   MainGitBranch:
     Type: String
-    Default: "dev"
+    Default: "master"
+  CodeStarConnectionArn:
+    Type: String
+    Default: ""
   SamTemplate:
     Type: String
     Default: "template.yaml"
   Region:
     Type: String
-    Default: "us-east-1"
   DeployStackName:
     Type: String
-    Default: ""
   PipelineExecutionRole:
     Type: String
-    Default: ""
   CloudFormationExecutionRole:
     Type: String
-    Default: ""
   ArtifactBucket:
     Type: String
-    Default: "aws-sam-cli-managed-prod-pipeline-artifactsbucket-lshck0q70sdj"
-  CodeStarConnectionArn:
-    Type: String
-    Default: ""
   TorguapiLayerArn:
     Type: String
     Description: Arn for torguapi layer (not a layer version, so exclude the version number)
-    Default: ""
   TorguapiLayerVersion:
     Type: Number
     Description: Version number for TorgupaiLayer
-    Default: "4"
-    MinValue: "4"
   EnvPrefix:
     Type: String
     Description: Prefix for resource names
@@ -120,6 +112,7 @@ Resources:
                 ParameterOverrides: !Sub |
                   {
                     "CodeStarConnectionArn": "${CodeStarConnectionArn}",
+                    "MainGitBranch": "${MainGitBranch}",
                     "PipelineExecutionRole": "${PipelineExecutionRole}",
                     "CloudFormationExecutionRole": "${CloudFormationExecutionRole}",
                     "TorguapiLayerVersion": "${TorguapiLayerVersion}",

@@ -243,6 +243,14 @@ $RECYCLE.BIN/
 
 # AWS stuff
 samconfig*.toml
+pipeline-update*.sh
 .aws-sam/
+
+# Torguapi stuff (potentially used for local and pipeline unit tests)
+TorguapiLayer.zip
+torguapi/
+
+# README preview
+README.html
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

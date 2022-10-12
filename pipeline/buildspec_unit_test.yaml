@@ -1,0 +1,24 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+    commands:
+      - pip install --upgrade pip
+      - pip install --upgrade pytest pytest-mock pandas
+  build:
+    commands:
+      - echo 'Downloading TorguapiLayer.zip'
+      - URL=$(aws lambda get-layer-version
+            --layer-name ${ENV_TORGUAPI_LAYER_ARN}
+            --version-number ${ENV_TORGUAPI_LAYER_VERSION}
+            --query Content.Location
+            --output text)
+      - curl $URL -o TorguapiLayer.zip    
+      - echo 'Unzipping TorguapiLayer.zip'
+      - unzip -qq -o TorguapiLayer python/* -d TorguapiLayer
+      - echo 'Moving TorguapiLayer python files to lambda source directory'
+      - mkdir torguapi
+      - find ./TorguapiLayer/python/torguapi -type f -exec mv {} torguapi/ \;      
+      - echo 'Running unit tests'
+      - make unit_test

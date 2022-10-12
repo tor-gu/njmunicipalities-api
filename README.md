@@ -13,7 +13,7 @@ year.
 ### OpenAPI/Swagger
 
 There is an OpenAPI/swagger document deployed
-[https://tor-gu.com/apis/njmunicipalities.html](here) that you can play
+[here](https://tor-gu.com/apis/njmunicipalities.html) that you can play
 with.
 
 ### Sample code
@@ -62,10 +62,10 @@ municipalities_2022 = load_as_df("https://api.tor-gu.com/nj/municipalities/2022"
 | 2022 | 3400108710 | Atlantic County | Buena Vista township |
 | 2022 | 3400115160 | Atlantic County | Corbin City city     |
 
-The ‘municipality\_xrefs’ endpoint works similarly. Let’s also retrieve
-the 2000 municipality table along with the 2022/2000 cross-reference
-table, so we can see the changes in NJ municipalties between 2000 and
-2022.
+The ‘municipality\_xrefs’ endpoint works similarly. As an example, let’s
+also retrieve the 2000 municipality table along with the 2022/2000
+cross-reference table, and take a look at the changes in NJ
+municipalties between 2000 and 2022.
 
 ``` python
 municipalities_2000 = load_as_df("https://api.tor-gu.com/nj/municipalities/2000")
@@ -104,8 +104,9 @@ changes = merged[(merged["municipality_2000"] != merged["municipality_2022"]) |
 
 ## Deploying
 
-This is an [AWS SAM](https://aws.amazon.com/serverless/sam/)
-application. It depends on a lambda layer
+This API is implemented as an [AWS
+SAM](https://aws.amazon.com/serverless/sam/) application. It depends on
+a lambda layer
 [layer\_torguapi](https://github.com/tor-gu/layer_torguapi), which needs
 to be deployed separately. You also need to have CSV dumps of the tables
 in [njmunicipalities](https://github.com/tor-gu/njmunicipalities)
@@ -124,12 +125,12 @@ The application can be deployed directly using the SAM CLI:
                     ApiRoot=https://api.example.com 
 
 Replace the `TorguapiLayerXXX` params with the values derived from the
-layer\_torguapi dependency.
+`layer_torguapi` deployment.
 
 The `ApiRoot` value is used only for generating the values in `"links"`
-in the JSON reply. On api.tor-gu.com, the relationship between the
-publicly facing API URL and the API gateway endpoints is configured in
-[torgu-api-cloudfront](https://github.com/tor-gu/torgu-api-cloudfront)
+in the JSON reply. On `api.tor-gu.com`, the relationship between the
+publicly facing API URL and the API Gateway endpoints is configured in
+[torgu-api-cloudfront](https://github.com/tor-gu/torgu-api-cloudfront).
 
 ### Using a pipeline
 
@@ -138,7 +139,7 @@ github.
 
 In addition to the requirements above, you will need to have execution
 roles for the pipeline (`PipelineExecutionRole`) and for the deployment
-itself (`CloudFormationExecutionRole`)
+itself (`CloudFormationExecutionRole`).
 
     aws cloudformation update-stack --stack-name MyPiplineStackName \
         --template-body file://codepipeline.yaml                    \

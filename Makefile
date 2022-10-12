@@ -14,5 +14,8 @@ unit_test:
 integration_test:
 	python -m pytest -sv tests/integration
 
+knit:
+	Rscript -e "rmarkdown::render('README.Rmd')"
+	
 all: style unit_test integration_test
 

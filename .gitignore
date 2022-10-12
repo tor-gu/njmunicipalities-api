@@ -250,4 +250,7 @@ pipeconfig*.toml
 TorguapiLayer.zip
 torguapi/
 
+# README preview
+README.html
+
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

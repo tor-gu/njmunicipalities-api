@@ -8,6 +8,10 @@ It contains the names and GEOID/FIPS codes for every municipality and
 county in NJ, from 2000 to 2022, and records the changes from year to
 year.
 
+See the related [njmunicipalities data pacakge for
+R](https://github.com/tor-gu/njmunicipalities) for more details on the
+underlying dataset.
+
 ## Try it out
 
 ### OpenAPI/Swagger

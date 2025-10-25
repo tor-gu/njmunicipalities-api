@@ -1,8 +1,6 @@
 import traceback
 from http import HTTPStatus
 
-from util import un_none
-
 from torguapi import (
     TorguapiInvalidRequest,
     torguapi_get_page_parameters,
@@ -10,6 +8,7 @@ from torguapi import (
     torguapi_make_links_and_meta,
     torguapi_result,
 )
+from util import un_none
 
 from .counties_data import get_counties_table
 from .counties_lib import CountiesNotFoundError, handle_get_counties, handle_get_county

@@ -1,8 +1,6 @@
 import traceback
 from http import HTTPStatus
 
-from util import un_none
-
 from torguapi import (
     TorguapiInvalidRequest,
     torguapi_get_page_parameters,
@@ -10,6 +8,7 @@ from torguapi import (
     torguapi_make_links_and_meta,
     torguapi_result,
 )
+from util import un_none
 
 from .municipalities_data import get_municipalities_table
 from .municipalities_lib import (

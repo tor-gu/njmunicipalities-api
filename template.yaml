@@ -96,6 +96,7 @@ Resources:
       FunctionName: !Sub "${EnvPrefix}njmunicipalities-api-counties"
       Handler: app.counties_api.counties_handler
       Runtime: python3.12
+      Timeout: 10
       Events:
         GetCounties:
           Type: Api
@@ -123,6 +124,7 @@ Resources:
       FunctionName: !Sub "${EnvPrefix}njmunicipalities-api-municipalities"
       Handler: app.municipalities_api.municipalities_handler
       Runtime: python3.12
+      Timeout: 10
       Events:
         GetMunicipalities:
           Type: Api
@@ -156,6 +158,7 @@ Resources:
       FunctionName: !Sub "${EnvPrefix}njmunicipalities-api-xrefs"
       Handler: app.municipalities_api.xref_handler
       Runtime: python3.12
+      Timeout: 10
       Events:
         GetXREFs:
           Type: Api

@@ -48,7 +48,7 @@ def test_handle_get_municipalities_page_3(municipality_table):
         municipalities_lib.handle_get_municipalities(municipality_table, {"year": 1999})
 
     with pytest.raises(municipalities_lib.MunicipalitiesNotFoundError):
-        municipalities_lib.handle_get_municipalities(municipality_table, {"year": 2022})
+        municipalities_lib.handle_get_municipalities(municipality_table, {"year": 2025})
 
 
 def test_handle_get_municipalities_page_4(municipality_table):

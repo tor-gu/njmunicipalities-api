@@ -3,10 +3,10 @@ info:
   version: '1.0.0'
   title: 'njmunicipalities-api'
   description: >
-    # NJ Municipality names and GEOIDs, from 2000 to 2022
+    # NJ Municipality names and GEOIDs, from 2000 to 2025
 
     Names and US Census GEOID/FIPS codes for every NJ county and muncipality from 
-    2000 to 2022.
+    2000 to 2025.
 
 servers:
   - url: "{protocol}://{server}"
@@ -140,9 +140,9 @@ paths:
                 $ref: '#/components/schemas/success'
               example:
                 data:
-                - {"year": 2022, "GEOID": "3400108680", "county": "Atlantic County", "municipality": "Buena borough"}
-                - {"year": 2022, "GEOID": "3400108710", "county": "Atlantic County", "municipality": "Buena Vista township"}
-                - {"year": 2022, "GEOID": "3400115160", "county": "Atlantic County", "municipality": "Corbin City city"}
+                - {"year": 2025, "GEOID": "3400108680", "county": "Atlantic County", "municipality": "Buena borough"}
+                - {"year": 2025, "GEOID": "3400108710", "county": "Atlantic County", "municipality": "Buena Vista township"}
+                - {"year": 2025, "GEOID": "3400115160", "county": "Atlantic County", "municipality": "Corbin City city"}
                 links:
                   self: https://api.tor-gu.com/nj/municipalities?page_number=2&page_size=3
                   previous: https://api.tor-gu.com/nj/municipalities?page_number=1&page_size=3
@@ -301,13 +301,13 @@ paths:
                 $ref: '#/components/schemas/success'
               example:
                 data:
-                - {"year_ref":2000, "year":2022, "GEOID_ref": "3400108680", "GEOID": "3400108680"}
-                - {"year_ref":2000, "year":2022, "GEOID_ref": "3400108710", "GEOID": "3400108710"}
-                - {"year_ref":2000, "year":2022, "GEOID_ref": "3400115160", "GEOID": "3400115160"}
+                - {"year_ref":2000, "year":2025, "GEOID_ref": "3400108680", "GEOID": "3400108680"}
+                - {"year_ref":2000, "year":2025, "GEOID_ref": "3400108710", "GEOID": "3400108710"}
+                - {"year_ref":2000, "year":2025, "GEOID_ref": "3400115160", "GEOID": "3400115160"}
                 links:
-                  self: https://api.tor-gu.com/nj/municipality_xrefs/2000/2022?page_number=2&page_size=3"
-                  previous: https://api.tor-gu.com/nj/municipality_xrefs/2000/2022?page_number=1&page_size=3"
-                  next: https://api.tor-gu.com/nj/municipality_xrefs/2000/2022?page_number=3&page_size=3"
+                  self: https://api.tor-gu.com/nj/municipality_xrefs/2000/2025?page_number=2&page_size=3"
+                  previous: https://api.tor-gu.com/nj/municipality_xrefs/2000/2025?page_number=1&page_size=3"
+                  next: https://api.tor-gu.com/nj/municipality_xrefs/2000/2025?page_number=3&page_size=3"
                 meta:
                   record_count: 564
                   page_count: 188
@@ -404,7 +404,7 @@ components:
       properties:
         year:
           type: integer
-          example: 2022
+          example: 2025
         GEOID:
           $ref: '#/components/schemas/municipalityGEOID'
         county:
@@ -475,9 +475,9 @@ components:
       required: true
       schema:
         type: integer
-        example: 2022
+        example: 2025
         minimum: 2000
-        maximum: 2022
+        maximum: 2025
     year_ref:
       name: year_ref
       in: path
@@ -487,7 +487,7 @@ components:
         type: integer
         example: 2000
         minimum: 2000
-        maximum: 2022
+        maximum: 2025
     countyGEOID:
       name: GEOID
       in: path

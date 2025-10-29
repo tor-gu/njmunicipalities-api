@@ -102,7 +102,7 @@ def municipalities_table():
                 "0000000002",
             ],
             "first_year": [2000, 2000, 2005, 2010, 2000],
-            "final_year": [2022, 2004, 2009, 2022, 2022],
+            "final_year": [2025, 2004, 2009, 2025, 2025],
             "county": ["County A", "County B", "County B", "County B", "County C"],
             "municipality": ["Town A", "Town B1", "Town B2", "Town B2", "Town C"],
         }
@@ -137,19 +137,19 @@ def test_municipality_handler_1(
     meta = body["meta"]
     expected_data = [
         {
-            "year": 2022,
+            "year": 2025,
             "GEOID": "0000000000",
             "county": "County A",
             "municipality": "Town A",
         },
         {
-            "year": 2022,
+            "year": 2025,
             "GEOID": "0000000021",
             "county": "County B",
             "municipality": "Town B2",
         },
         {
-            "year": 2022,
+            "year": 2025,
             "GEOID": "0000000002",
             "county": "County C",
             "municipality": "Town C",
@@ -323,7 +323,7 @@ def test_make_municipalities_path_1():
     """make_municipalities_path year and GEOID not specified"""
     aux = {}
     path = municipalities_api.make_municipalities_path(aux)
-    assert "nj/municipalities/2022" == path
+    assert "nj/municipalities/2025" == path
 
 
 def test_make_municipalities_path_2():

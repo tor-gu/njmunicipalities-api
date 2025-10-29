@@ -1,4 +1,4 @@
-DEFAULT_YEAR = 2022
+DEFAULT_YEAR = 2025
 
 
 class MunicipalitiesError(Exception):

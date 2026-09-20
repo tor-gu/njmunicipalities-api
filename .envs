@@ -1,4 +1,4 @@
 PYTHONPATH=common_layer
-AWS_SAM_STACK_NAME=NjmunicipalitiesApiDev
+AWS_SAM_STACK_NAME=NjMunicipalitiesApiDev
 TABLE_COUNTIES=dev-counties
-TABLE_MUNICIPALIITIES=dev-municipalities
+TABLE_MUNICIPALITIES=dev-municipalities

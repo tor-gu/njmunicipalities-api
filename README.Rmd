@@ -9,7 +9,7 @@ This is the source code for the NJ Municipalities API deployed at `api.tor-gu.co
 
 It contains the names and GEOID/FIPS codes for every municipality and county in NJ, from 2000 to 2025, and records the changes from year to year.
 
-See the related [njmunicipalities data pacakge for R](https://github.com/tor-gu/njmunicipalities) for 
+See the related [njmunicipalities data package for R](https://github.com/tor-gu/njmunicipalities) for 
 more details on the underlying dataset.
 
 ## Try it out
@@ -23,7 +23,7 @@ that you can play with.
 Each endpoint returns paginated results, with a `"next"` url in the `"links"` section 
 indicating that there are more results to be retrieved.
 
-This is illustrated in the python code below, which loads the table of municipalities for 2022 
+This is illustrated in the python code below, which loads the table of municipalities for 2025 
 into a [pandas DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 ```{python}
 import json
@@ -48,39 +48,39 @@ def load_as_df(url):
 	return df
 
 
-# Load municipality tables for 2022
-municipalities_2022 = load_as_df("https://api.tor-gu.com/nj/municipalities/2022")
+# Load municipality tables for 2025
+municipalities_2025 = load_as_df("https://api.tor-gu.com/nj/municipalities/2025")
 ```
 ```{r echo=FALSE}
 library(reticulate)
-knitr::kable(head(py$municipalities_2022))
+knitr::kable(head(py$municipalities_2025))
 ```
 
 The `municipality_xrefs` endpoint works similarly. As an example, let's also retrieve the 
-2000 municipality table along with the 2022/2000 cross-reference table, and take a look
-at the changes in NJ municipalties between 2000 and 2022.
+2000 municipality table along with the 2025/2000 cross-reference table, and take a look
+at the changes in NJ municipalities between 2000 and 2025.
 ```{python comment="", strip.white=TRUE}
 municipalities_2000 = load_as_df("https://api.tor-gu.com/nj/municipalities/2000")
-xrefs = load_as_df("https://api.tor-gu.com/nj/municipality_xrefs/2022/2000")
+xrefs = load_as_df("https://api.tor-gu.com/nj/municipality_xrefs/2025/2000")
 # Select columns for a merged table
 xrefs = xrefs.rename(
-	columns={"GEOID_ref": "GEOID_2022", "GEOID": "GEOID_2000"}
-	)[["GEOID_2000", "GEOID_2022"]]
+	columns={"GEOID_ref": "GEOID_2025", "GEOID": "GEOID_2000"}
+	)[["GEOID_2000", "GEOID_2025"]]
 municipalities_2000 = municipalities_2000.rename(
 	columns={"GEOID": "GEOID_2000", "municipality": "municipality_2000"}
 	)[["GEOID_2000", "county", "municipality_2000"]]
-municipalities_2022 = municipalities_2022.rename(
-	columns={"GEOID": "GEOID_2022", "municipality": "municipality_2022"}
-	)[["GEOID_2022","municipality_2022"]]
+municipalities_2025 = municipalities_2025.rename(
+	columns={"GEOID": "GEOID_2025", "municipality": "municipality_2025"}
+	)[["GEOID_2025","municipality_2025"]]
 
 # Create the merged table
 merged = xrefs.merge(
 	municipalities_2000, how="left", on="GEOID_2000").merge(
-	municipalities_2022, how="left", on="GEOID_2022").fillna("NA")
+	municipalities_2025, how="left", on="GEOID_2025").fillna("NA")
 
-# Select all changes in municipalities between 2000 and 20222
-changes = merged[(merged["municipality_2000"] != merged["municipality_2022"]) | 
-	(merged["GEOID_2000"] != merged["GEOID_2022"])]
+# Select all changes in municipalities between 2000 and 2025
+changes = merged[(merged["municipality_2000"] != merged["municipality_2025"]) | 
+	(merged["GEOID_2000"] != merged["GEOID_2025"])]
 ```
 ```{r echo=FALSE}
 knitr::kable(py$changes)

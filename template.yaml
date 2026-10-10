@@ -44,6 +44,8 @@ Globals:
 Resources:
   CountiesTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       TableName: !Sub "${EnvPrefix}counties${TablenameSuffix}"
       AttributeDefinitions:
@@ -62,6 +64,8 @@ Resources:
           S3KeyPrefix: counties
   MunicipalitiesTable:
     Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
     Properties:
       TableName: !Sub "${EnvPrefix}municipalities${TablenameSuffix}"
       AttributeDefinitions:

@@ -16,10 +16,6 @@ Parameters:
     Type: String
     Description: Prefix for resource names
     Default: ""
-  TablenameSuffix:
-    Type: String
-    Description: Suffix for table names
-    Default: ""
   ApiRoot:
     Type: String
     Description: API root
@@ -35,8 +31,8 @@ Globals:
     Tracing: Active
     Environment:
       Variables:
-        TABLE_COUNTIES: !Sub "${EnvPrefix}counties${TablenameSuffix}"
-        TABLE_MUNICIPALITIES: !Sub "${EnvPrefix}municipalities${TablenameSuffix}"
+        TABLE_COUNTIES: !Sub "${EnvPrefix}counties"
+        TABLE_MUNICIPALITIES: !Sub "${EnvPrefix}municipalities"
         API_ROOT: !Ref ApiRoot
         DATA_VERSION: !Ref DataVersion
     Layers:
@@ -85,7 +81,7 @@ Resources:
           Effect: Allow
           Action:
           - dynamodb:Scan
-          Resource: !Sub "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvPrefix}counties${TablenameSuffix}"
+          Resource: !Sub "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvPrefix}counties"
   MunicipalitiesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -119,7 +115,7 @@ Resources:
           Effect: Allow
           Action:
           - dynamodb:Scan
-          Resource: !Sub "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvPrefix}municipalities${TablenameSuffix}"
+          Resource: !Sub "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvPrefix}municipalities"
   XREFsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -141,7 +137,7 @@ Resources:
           Effect: Allow
           Action:
           - dynamodb:Scan
-          Resource: !Sub "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvPrefix}municipalities${TablenameSuffix}"
+          Resource: !Sub "arn:${AWS::Partition}:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${EnvPrefix}municipalities"
   MunicipalitiesApi:
     Type: AWS::Serverless::Api
     Properties:

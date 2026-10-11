@@ -39,8 +39,10 @@ Parameters:
     Description: Prefix for resource names
     Default: ""
   TablenameSuffix:
+    # Unused. Still declared because the running pipeline passes it to its own
+    # update; remove once no deployed pipeline passes it.
     Type: String
-    Description: Suffix for table names
+    Description: Unused
     Default: ""
   ApiRoot:
     Type: String
@@ -121,8 +123,7 @@ Resources:
                     "TorguapiLayerArn": "${TorguapiLayerArn}",
                     "DeployStackName": "${DeployStackName}",
                     "ApiRoot": "${ApiRoot}",
-                    "EnvPrefix": "${EnvPrefix}",
-                    "TablenameSuffix": "${TablenameSuffix}"
+                    "EnvPrefix": "${EnvPrefix}"
                   }
               InputArtifacts:
                 - Name: SourceCodeAsZip
@@ -192,7 +193,6 @@ Resources:
                     {"name": "ENV_TORGUAPI_LAYER_ARN", "value": "${TorguapiLayerArn}"},
                     {"name": "ENV_TORGUAPI_LAYER_VERSION", "value": "${TorguapiLayerVersion}"},
                     {"name": "ENV_ENV_PREFIX", "value": "${EnvPrefix}"},
-                    {"name": "ENV_TABLENAME_SUFFIX", "value": "${TablenameSuffix}"},
                     {"name": "ENV_API_ROOT", "value": "${ApiRoot}"}
                   ]
               InputArtifacts:
@@ -504,7 +504,4 @@ Outputs:
   EnvPrefix:
     Description: Prefix for resource names
     Value: !Ref EnvPrefix
-  TablenameSuffix:
-    Description: Suffix for table names
-    Value: !Ref TablenameSuffix
 

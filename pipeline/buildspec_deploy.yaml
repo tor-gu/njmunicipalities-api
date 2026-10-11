@@ -24,7 +24,6 @@ phases:
                     --parameter-overrides \
                           TorguapiLayerArn=${ENV_TORGUAPI_LAYER_ARN} \
                           TorguapiLayerVersion=${ENV_TORGUAPI_LAYER_VERSION} \
-                          EnvPrefix=\"${ENV_ENV_PREFIX}\"" \
-                          TablenameSuffix=\"${ENV_TABLENAME_SUFFIX}\"" \
+                          EnvPrefix=\"${ENV_ENV_PREFIX}\" \
                           DataVersion=${DATA_VERSION} \
                           ApiRoot=${ENV_API_ROOT}

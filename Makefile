@@ -16,6 +16,11 @@ integration_test:
 
 knit:
 	Rscript -e "rmarkdown::render('README.Rmd')"
+
+# Export DynamoDB CSVs from a tagged njmunicipalities release, e.g. make export_data REF=v1.4.0
+export_data:
+	@test -n "$(REF)" || (echo "Usage: make export_data REF=<njmunicipalities git ref>" && exit 1)
+	Rscript scripts/export_data.R $(REF)
 	
 all: style unit_test integration_test
 

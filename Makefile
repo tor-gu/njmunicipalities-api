@@ -26,6 +26,20 @@ export_data:
 load_dry_run:
 	@test "$(ENV)" = dev -o "$(ENV)" = prod || (echo "Usage: make load_dry_run ENV=dev|prod" && exit 1)
 	python scripts/load_data.py --env-prefix "$(if $(filter dev,$(ENV)),dev-,)" --dry-run
+
+# Terraform for the DynamoDB tables, e.g. make tf_plan ENV=dev, then make tf_apply ENV=dev.
+# init -reconfigure each time, since each environment has its own state file.
+tf_plan:
+	@test "$(ENV)" = dev -o "$(ENV)" = prod || (echo "Usage: make tf_plan ENV=dev|prod" && exit 1)
+	cd infra && terraform init -reconfigure -input=false -backend-config=env/$(ENV).backend.hcl
+	cd infra && terraform plan -input=false -var-file=env/$(ENV).tfvars -out=$(ENV).tfplan
+
+tf_apply:
+	@test "$(ENV)" = dev -o "$(ENV)" = prod || (echo "Usage: make tf_apply ENV=dev|prod" && exit 1)
+	@test -f infra/$(ENV).tfplan || (echo "No infra/$(ENV).tfplan; run make tf_plan ENV=$(ENV) first" && exit 1)
+	cd infra && terraform init -reconfigure -input=false -backend-config=env/$(ENV).backend.hcl
+	cd infra && terraform apply $(ENV).tfplan
+	rm infra/$(ENV).tfplan
 	
 all: style unit_test integration_test
 

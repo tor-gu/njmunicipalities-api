@@ -5,9 +5,14 @@ phases:
       python: 3.12
     commands:
       - pip install --upgrade pip
-      - pip install --upgrade awscli aws-sam-cli
+      - pip install --upgrade awscli aws-sam-cli boto3
   build:
     commands:
+      # Load data with the CodeBuild service role, before assume-role replaces
+      # its credentials. The load is not atomic, so sam deploy then recycles the
+      # lambdas by changing DataVersion when the data has changed.
+      - python scripts/load_data.py --env-prefix "${ENV_ENV_PREFIX}" --region ${ENV_REGION}
+      - DATA_VERSION=$(sed -n 's/^version=//p' data/SOURCE)
       - . ./assume-role.sh ${ENV_PIPELINE_EXECUTION_ROLE} deploy
       - sam deploy --stack-name ${ENV_STACK_NAME}
                     --template ${ENV_TEMPLATE}
@@ -21,4 +26,5 @@ phases:
                           TorguapiLayerVersion=${ENV_TORGUAPI_LAYER_VERSION} \
                           EnvPrefix=\"${ENV_ENV_PREFIX}\"" \
                           TablenameSuffix=\"${ENV_TABLENAME_SUFFIX}\"" \
+                          DataVersion=${DATA_VERSION} \
                           ApiRoot=${ENV_API_ROOT}

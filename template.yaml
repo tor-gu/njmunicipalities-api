@@ -24,6 +24,10 @@ Parameters:
     Type: String
     Description: API root
     Default: https://api.tor-gu.com
+  DataVersion:
+    Type: String
+    Description: njmunicipalities version loaded into the tables (data/SOURCE); changing it recycles the lambdas
+    Default: ""
 
 Globals:
   Function:
@@ -34,6 +38,7 @@ Globals:
         TABLE_COUNTIES: !Sub "${EnvPrefix}counties${TablenameSuffix}"
         TABLE_MUNICIPALITIES: !Sub "${EnvPrefix}municipalities${TablenameSuffix}"
         API_ROOT: !Ref ApiRoot
+        DATA_VERSION: !Ref DataVersion
     Layers:
       - !Ref CommonLayer
       - !Sub "${TorguapiLayerArn}:${TorguapiLayerVersion}"

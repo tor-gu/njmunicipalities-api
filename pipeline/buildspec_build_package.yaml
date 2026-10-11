@@ -21,3 +21,5 @@ artifacts:
     - packaged.yaml
     - assume-role.sh
     - pipeline/*
+    - data/*
+    - scripts/load_data.py

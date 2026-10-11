@@ -7,7 +7,9 @@ deleted, and an unchanged table is left alone. Items keep the shape DynamoDB's
 CSV import gave them: row_number is N, every other attribute is S.
 
 The load is not atomic. A lambda that cold-starts mid-load can cache a mix of
-old and new rows, so the deploy must recycle the lambdas after loading.
+old and new rows, so the deploy must recycle the lambdas after loading. The
+pipeline does this by passing data/SOURCE's version to template.yaml's
+DataVersion (see pipeline/buildspec_deploy.yaml).
 """
 
 import argparse

@@ -1,7 +1,7 @@
 export PYTHONPATH = common_layer
 export AWS_SAM_STACK_NAME=NjMunicipalitiesApiDev
 
-src_dirs := common_layer counties municipalities tests
+src_dirs := common_layer counties municipalities scripts tests
 
 style:
 	python -m isort $(src_dirs)
@@ -21,6 +21,11 @@ knit:
 export_data:
 	@test -n "$(REF)" || (echo "Usage: make export_data REF=<njmunicipalities git ref>" && exit 1)
 	Rscript scripts/export_data.R $(REF)
+
+# Show what loading data/ would change, e.g. make load_dry_run ENV=dev
+load_dry_run:
+	@test "$(ENV)" = dev -o "$(ENV)" = prod || (echo "Usage: make load_dry_run ENV=dev|prod" && exit 1)
+	python scripts/load_data.py --env-prefix "$(if $(filter dev,$(ENV)),dev-,)" --dry-run
 	
 all: style unit_test integration_test
 

@@ -256,3 +256,11 @@ README.html
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode
 
 sandbox.ipynb
+
+# Terraform (commit .terraform.lock.hcl; state lives in S3)
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+# Per-environment backend/tfvars; not a virtualenv despite the env/ rule above
+!infra/env/

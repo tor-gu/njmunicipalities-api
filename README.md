@@ -5,7 +5,7 @@ This is the source code for the NJ Municipalities API deployed at
 `api.tor-gu.com`.
 
 It contains the names and GEOID/FIPS codes for every municipality and
-county in NJ, from 2000 to 2025, and records the changes from year to
+county in NJ, from 2000 to 2026, and records the changes from year to
 year.
 
 See the related [njmunicipalities data package for
@@ -27,7 +27,7 @@ Each endpoint returns paginated results, with a `"next"` url in the
 retrieved.
 
 This is illustrated in the python code below, which loads the table of
-municipalities for 2025 into a [pandas
+municipalities for 2026 into a [pandas
 DataFrame](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html).
 
 ``` python
@@ -53,58 +53,59 @@ def load_as_df(url):
     return df
 
 
-# Load municipality tables for 2025
-municipalities_2025 = load_as_df("https://api.tor-gu.com/nj/municipalities/2025")
+# Load municipality tables for 2026
+municipalities_2026 = load_as_df("https://api.tor-gu.com/nj/municipalities/2026")
 ```
 
 | year | GEOID      | county          | municipality         |
 |-----:|:-----------|:----------------|:---------------------|
-| 2025 | 3400100100 | Atlantic County | Absecon city         |
-| 2025 | 3400102080 | Atlantic County | Atlantic City city   |
-| 2025 | 3400107810 | Atlantic County | Brigantine city      |
-| 2025 | 3400108680 | Atlantic County | Buena borough        |
-| 2025 | 3400108710 | Atlantic County | Buena Vista township |
-| 2025 | 3400115160 | Atlantic County | Corbin City city     |
+| 2026 | 3400100100 | Atlantic County | Absecon city         |
+| 2026 | 3400102080 | Atlantic County | Atlantic City city   |
+| 2026 | 3400107810 | Atlantic County | Brigantine city      |
+| 2026 | 3400108680 | Atlantic County | Buena borough        |
+| 2026 | 3400108710 | Atlantic County | Buena Vista township |
+| 2026 | 3400115160 | Atlantic County | Corbin City city     |
 
 The `municipality_xrefs` endpoint works similarly. As an example, let’s
-also retrieve the 2000 municipality table along with the 2025/2000
+also retrieve the 2000 municipality table along with the 2026/2000
 cross-reference table, and take a look at the changes in NJ
-municipalities between 2000 and 2025.
+municipalities between 2000 and 2026.
 
 ``` python
 municipalities_2000 = load_as_df("https://api.tor-gu.com/nj/municipalities/2000")
-xrefs = load_as_df("https://api.tor-gu.com/nj/municipality_xrefs/2025/2000")
+xrefs = load_as_df("https://api.tor-gu.com/nj/municipality_xrefs/2026/2000")
 # Select columns for a merged table
 xrefs = xrefs.rename(
-    columns={"GEOID_ref": "GEOID_2025", "GEOID": "GEOID_2000"}
-    )[["GEOID_2000", "GEOID_2025"]]
+    columns={"GEOID_ref": "GEOID_2026", "GEOID": "GEOID_2000"}
+    )[["GEOID_2000", "GEOID_2026"]]
 municipalities_2000 = municipalities_2000.rename(
     columns={"GEOID": "GEOID_2000", "municipality": "municipality_2000"}
     )[["GEOID_2000", "county", "municipality_2000"]]
-municipalities_2025 = municipalities_2025.rename(
-    columns={"GEOID": "GEOID_2025", "municipality": "municipality_2025"}
-    )[["GEOID_2025","municipality_2025"]]
+municipalities_2026 = municipalities_2026.rename(
+    columns={"GEOID": "GEOID_2026", "municipality": "municipality_2026"}
+    )[["GEOID_2026","municipality_2026"]]
 
 # Create the merged table
 merged = xrefs.merge(
     municipalities_2000, how="left", on="GEOID_2000").merge(
-    municipalities_2025, how="left", on="GEOID_2025").fillna("NA")
+    municipalities_2026, how="left", on="GEOID_2026").fillna("NA")
 
-# Select all changes in municipalities between 2000 and 2025
-changes = merged[(merged["municipality_2000"] != merged["municipality_2025"]) | 
-    (merged["GEOID_2000"] != merged["GEOID_2025"])]
+# Select all changes in municipalities between 2000 and 2026
+changes = merged[(merged["municipality_2000"] != merged["municipality_2026"]) | 
+    (merged["GEOID_2000"] != merged["GEOID_2026"])]
 ```
 
-|     | GEOID_2000 | GEOID_2025 | county          | municipality_2000     | municipality_2025     |
-|:----|:-----------|:-----------|:----------------|:----------------------|:----------------------|
-| 161 | 3400758920 | NA         | Camden County   | Pine Valley borough   | NA                    |
-| 202 | 3401309220 | 3401309250 | Essex County    | Caldwell borough      | Caldwell borough      |
-| 292 | 3402160900 | 3402160900 | Mercer County   | Princeton borough     | Princeton             |
-| 293 | 3402160915 | NA         | Mercer County   | Princeton township    | NA                    |
-| 295 | 3402177210 | 3402163850 | Mercer County   | Washington township   | Robbinsville township |
-| 367 | 3402568670 | 3402537560 | Monmouth County | South Belmar borough  | Lake Como borough     |
-| 421 | 3402918130 | 3402973125 | Ocean County    | Dover township        | Toms River township   |
-| 462 | 3403179820 | 3403182423 | Passaic County  | West Paterson borough | Woodland Park borough |
+|     | GEOID_2000 | GEOID_2026 | county          | municipality_2000             | municipality_2026     |
+|:----|:-----------|:-----------|:----------------|:------------------------------|:----------------------|
+| 161 | 3400758920 | NA         | Camden County   | Pine Valley borough           | NA                    |
+| 202 | 3401309220 | 3401309250 | Essex County    | Caldwell borough              | Caldwell borough      |
+| 218 | 3401369274 | 3401369270 | Essex County    | South Orange Village township | South Orange village  |
+| 292 | 3402160900 | 3402160900 | Mercer County   | Princeton borough             | Princeton             |
+| 293 | 3402160915 | NA         | Mercer County   | Princeton township            | NA                    |
+| 295 | 3402177210 | 3402163850 | Mercer County   | Washington township           | Robbinsville township |
+| 367 | 3402568670 | 3402537560 | Monmouth County | South Belmar borough          | Lake Como borough     |
+| 421 | 3402918130 | 3402973125 | Ocean County    | Dover township                | Toms River township   |
+| 462 | 3403179820 | 3403182423 | Passaic County  | West Paterson borough         | Woodland Park borough |
 
 ## Deploying
 
@@ -123,17 +124,21 @@ DynamoDB tables managed separately by
     `scripts/load_data.py`.
 4.  The lambdas and API Gateway, defined in `template.yaml`.
 
-The tables are kept out of the SAM template. Terraform owns the
+The tables are deliberately kept out of the SAM template, so that
+deploying the application can never replace them. Terraform owns the
 tables, and the loader owns their contents.
 
 ### Tables
 
 Terraform state is kept in an S3 bucket, with one state file per
 environment (see `infra/env/*.backend.hcl`; the bucket must exist and
-should be versioned).
+should be versioned). Terraform 1.10 or later is required, for S3 state
+locking.
 
     make tf_plan ENV=dev      # review the plan, then
     make tf_apply ENV=dev
+
+The tables have deletion protection and point-in-time recovery enabled.
 
 ### Data
 
@@ -150,12 +155,17 @@ deleted. To preview what it would change:
 
     make load_dry_run ENV=dev
 
-The pipeline runs the loader on every deploy.
+The pipeline runs the loader on every deploy, then passes the version in
+`data/SOURCE` to the template’s `DataVersion` parameter. The lambdas
+cache the tables, and the load is not atomic, so when the version
+changes the lambdas are updated, which discards anything they cached
+during the load.
 
-### Data update workflow
+### Annual data update
 
-1.  `make export_data REF=<new release>`.
-2.  Update the hard-coded current year, if necessary: `DEFAULT_YEAR` in
+1.  `make export_data REF=<new release>`, and review the diff in
+    `data/`.
+2.  Update the hard-coded current year: `DEFAULT_YEAR` in
     `municipalities/app/municipalities_lib.py`, the examples in
     `njmunicipalities-openapi.yaml` and in this README (then
     `make knit`), and the unit tests.

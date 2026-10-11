@@ -14,6 +14,11 @@ unit_test:
 integration_test:
 	python -m pytest -sv tests/integration
 
+# README.Rmd's python chunks run through reticulate and need requests and pandas;
+# use the repo's virtualenv for them if there is one
+ifneq ($(wildcard .venv/bin/python),)
+knit: export RETICULATE_PYTHON ?= $(abspath .venv/bin/python)
+endif
 knit:
 	Rscript -e "rmarkdown::render('README.Rmd')"
 

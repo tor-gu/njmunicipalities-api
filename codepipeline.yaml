@@ -38,12 +38,6 @@ Parameters:
     Type: String
     Description: Prefix for resource names
     Default: ""
-  TablenameSuffix:
-    # Unused. Still declared because the running pipeline passes it to its own
-    # update; remove once no deployed pipeline passes it.
-    Type: String
-    Description: Unused
-    Default: ""
   ApiRoot:
     Type: String
     Description: API root

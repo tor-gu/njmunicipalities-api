@@ -87,46 +87,94 @@ knitr::kable(py$changes)
 ```
 
 ## Deploying
-This API is implemented as an [AWS SAM](https://aws.amazon.com/serverless/sam/) application. It depends on a lambda layer
-[layer_torguapi](https://github.com/tor-gu/layer_torguapi), which needs to be deployed separately.  You also 
-need to have CSV dumps of the tables in [njmunicipalities](https://github.com/tor-gu/njmunicipalities) available
-in an S3 bucket.
+This API is implemented as an [AWS SAM](https://aws.amazon.com/serverless/sam/) application, with its DynamoDB
+tables managed separately by [Terraform](https://www.terraform.io/). A deployment has four parts:
+
+1. The lambda layer [layer_torguapi](https://github.com/tor-gu/layer_torguapi), which needs to be deployed separately.
+2. The DynamoDB tables, defined in `infra/`.
+3. The data: CSV exports of the tables in [njmunicipalities](https://github.com/tor-gu/njmunicipalities), committed
+   in `data/` and loaded into the tables by `scripts/load_data.py`.
+4. The lambdas and API Gateway, defined in `template.yaml`.
+
+The tables are deliberately kept out of the SAM template, so that deploying the application can never replace them.
+Terraform owns the tables, and the loader owns their contents.
+
+### Tables
+Terraform state is kept in an S3 bucket, with one state file per environment (see `infra/env/*.backend.hcl`;
+the bucket must exist and should be versioned). Terraform 1.10 or later is required, for S3 state locking.
+```
+make tf_plan ENV=dev      # review the plan, then
+make tf_apply ENV=dev
+```
+The tables have deletion protection and point-in-time recovery enabled.
+
+### Data
+`data/` holds `counties.csv`, `municipalities.csv`, and `SOURCE`, which records the njmunicipalities release
+they were exported from. To export a release (this needs R and the `remotes` package; the release is installed
+into a temporary library):
+```
+make export_data REF=v1.4.0
+```
+`scripts/load_data.py` brings the tables in line with `data/`: rows that are new or changed are written, and rows
+no longer in the CSVs are deleted. To preview what it would change:
+```
+make load_dry_run ENV=dev
+```
+The pipeline runs the loader on every deploy, then passes the version in `data/SOURCE` to the template's
+`DataVersion` parameter. The lambdas cache the tables, and the load is not atomic, so when the version changes
+the lambdas are updated, which discards anything they cached during the load.
+
+### Annual data update
+1. `make export_data REF=<new release>`, and review the diff in `data/`.
+2. Update the hard-coded current year: `DEFAULT_YEAR` in `municipalities/app/municipalities_lib.py`, the examples
+   in `njmunicipalities-openapi.yaml` and in this README (then `make knit`), and the unit tests.
+3. `make load_dry_run ENV=dev` to preview the load.
+4. Push to `dev`, check the dev API, then merge to `master`.
 
 ### Direct deploy
-The application can be deployed directly using the SAM CLI:
+The application can be deployed directly using the SAM CLI. Load the data first, then deploy with the matching
+`DataVersion`:
 ```
+python scripts/load_data.py
 sam build
-sam deploy --stack-name MyStackName
-           --template template.yaml
+sam deploy --stack-name MyStackName                                                         \
+           --capabilities CAPABILITY_IAM                                                    \
+           --resolve-s3                                                                     \
            --parameter-overrides                                                            \
                 TorguapiLayerArn=arn:aws:lambda:us-east-1:123456789012:layer:layer_torguapi \
                 TorguapiLayerVersion=1                                                      \
-                ApiRoot=https://api.example.com 
+                ApiRoot=https://api.example.com                                             \
+                DataVersion=$(sed -n 's/^version=//p' data/SOURCE)
 ```
 Replace the `TorguapiLayerXXX` params with the values derived from the `layer_torguapi` deployment.
 
-The `ApiRoot` value is used only for generating the values in `"links"` in the JSON reply. On 
-`api.tor-gu.com`, the relationship between the publicly facing API URL and the API Gateway 
+The `ApiRoot` value is used only for generating the values in `"links"` in the JSON reply. On
+`api.tor-gu.com`, the relationship between the publicly facing API URL and the API Gateway
 endpoints is configured in [torgu-api-cloudfront](https://github.com/tor-gu/torgu-api-cloudfront).
 
-### Using a pipeline
-The package also include the code pipeline that I use to deploy from github.
+To deploy a second environment alongside the first, give it a resource name prefix (I use `dev-`): set
+`EnvPrefix` in the template parameters, `--env-prefix` for the loader, and `env_prefix` in `infra/env/*.tfvars`.
 
-In addition to the requirements above, you will need to have execution roles for the 
-pipeline (`PipelineExecutionRole`) and for the deployment itself 
-(`CloudFormationExecutionRole`).
+### Using a pipeline
+The package also includes the code pipeline that I use to deploy from github. Each run updates the pipeline
+itself, runs the unit tests, builds the application, loads the data, and deploys.
+
+In addition to the requirements above, you will need to have execution roles for the
+pipeline (`PipelineExecutionRole`) and for the deployment itself
+(`CloudFormationExecutionRole`). The pipeline's CodeBuild role is granted read and batch-write access to the
+environment's two tables, for the data load.
 
 ```
-aws cloudformation deploy --stack-name MyPiplineStackName \
-	--template-body file://codepipeline.yaml 					\
-	--capabilities CAPABILITY_IAM								\
-	--parameters \
-        ParameterKey=ArtifactBucket,ParameterValue=MyArtifactBucket \
-		ParameterKey=PipelineExecutionRole,ParameterValue=arn:aws:iam::123456789012:role/MyPipelineExecutionRole \
-		ParameterKey=CloudFormationExecutionRole,ParameterValue=arn:aws:iam::123456789012:role/MyCloudFormationExecutionRole \
-		ParameterKey=Region,ParameterValue=us-east-1 \
-        ParameterKey=DeployStackName,ParameterValue=MyStackName \
-        ParameterKey=TorguapiLayerArn,ParameterValue=arn:aws:lambda:us-east-1:123456789012:layer:layer_torguapi \
-        ParameterKey=TorguapiLayerVersion,ParameterValue=1 \
-        ParameterKey=ApiRoot,ParameterValue=https://api.example.com
+aws cloudformation deploy --stack-name MyPipelineStackName \
+    --template-file codepipeline.yaml \
+    --capabilities CAPABILITY_IAM \
+    --parameter-overrides \
+        ArtifactBucket=MyArtifactBucket \
+        PipelineExecutionRole=arn:aws:iam::123456789012:role/MyPipelineExecutionRole \
+        CloudFormationExecutionRole=arn:aws:iam::123456789012:role/MyCloudFormationExecutionRole \
+        Region=us-east-1 \
+        DeployStackName=MyStackName \
+        TorguapiLayerArn=arn:aws:lambda:us-east-1:123456789012:layer:layer_torguapi \
+        TorguapiLayerVersion=1 \
+        ApiRoot=https://api.example.com
 ```

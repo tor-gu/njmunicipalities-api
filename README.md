@@ -170,7 +170,7 @@ during the load.
     `njmunicipalities-openapi.yaml` and in this README (then
     `make knit`), and the unit tests.
 3.  `make load_dry_run ENV=dev` to preview the load.
-4.  Push to `dev`, check the dev API, then merge to `master`.
+4.  Push to `dev`, check the dev API, then merge to `main`.
 
 ### Direct deploy
 

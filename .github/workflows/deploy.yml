@@ -1,0 +1,174 @@
+# Test, build and deploy: dev branch -> dev, main -> prod (after approval).
+#
+# AWS access is through OIDC roles defined in infra/github/. Jobs without an
+# environment use the readonly role; the deploy job runs in the GitHub
+# environment dev or prod and uses that environment's deploy role. The prod
+# environment requires a reviewer, so a run on main stops before deploying
+# until the plan job's summary has been checked and the run approved.
+#
+# Settings (stack names, role ARNs, layer version, ...) are in pipeline/env/.
+
+name: deploy
+
+on:
+  push:
+    branches: [dev, main]
+
+permissions:
+  id-token: write
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  PYTHON_VERSION: "3.12"
+  TERRAFORM_VERSION: "1.16.5"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: pipeline/load_env.sh
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ env.READONLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install -r tests/requirements.txt pandas
+      - run: scripts/fetch_torguapi.sh "$TORGUAPI_LAYER_ARN" "$TORGUAPI_LAYER_VERSION"
+      - run: make unit_test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v3
+        with:
+          use-installer: true
+      - run: sam build --use-container --template template.yaml --build-dir sam-build
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sam-build
+          path: sam-build
+          retention-days: 7
+
+  # What the deploy job will change: terraform plan and the loader's dry run,
+  # written to the job summary. Read this before approving a prod deploy.
+  plan:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: pipeline/load_env.sh
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ env.READONLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install boto3
+      # -lock=false: the readonly role can't write the lock file
+      - name: terraform plan
+        working-directory: infra
+        run: |
+          terraform init -reconfigure -input=false -backend-config=env/$ENV.backend.hcl
+          terraform plan -input=false -lock=false -no-color -var-file=env/$ENV.tfvars | tee plan.txt
+          { echo "## terraform plan ($ENV)"; echo '```'; cat plan.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: load_data dry run
+        run: |
+          python scripts/load_data.py --env-prefix "$ENV_PREFIX" --dry-run | tee load.txt
+          { echo "## load_data dry run ($ENV)"; echo '```'; cat load.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+  # Same order as the old pipeline/buildspec_deploy.yaml, with terraform first:
+  # the tables, then their data, then the lambdas. The load is not atomic, so
+  # sam deploy recycles the lambdas by changing DataVersion when the data has
+  # changed. terraform apply re-plans rather than applying the plan job's plan,
+  # which would have to be passed as a (public) artifact.
+  deploy:
+    needs: [build, plan]
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+    concurrency:
+      group: deploy-${{ github.ref_name }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: pipeline/load_env.sh
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ env.DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: false
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+          terraform_wrapper: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: aws-actions/setup-sam@89ddb14d60e682855e3fea4be85b3c56485de310 # v3
+        with:
+          use-installer: true
+      - run: pip install boto3
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sam-build
+          path: sam-build
+      - name: terraform apply
+        working-directory: infra
+        run: |
+          terraform init -reconfigure -input=false -backend-config=env/$ENV.backend.hcl
+          terraform apply -input=false -auto-approve -var-file=env/$ENV.tfvars
+      - name: load data
+        run: python scripts/load_data.py --env-prefix "$ENV_PREFIX"
+      - name: sam deploy
+        run: |
+          DATA_VERSION=$(sed -n 's/^version=//p' data/SOURCE)
+          sam deploy --stack-name "$STACK_NAME" \
+                     --template sam-build/template.yaml \
+                     --capabilities CAPABILITY_IAM \
+                     --region "$AWS_REGION" \
+                     --s3-bucket "$SAM_ARTIFACT_BUCKET" \
+                     --s3-prefix "$STACK_NAME" \
+                     --no-fail-on-empty-changeset \
+                     --no-confirm-changeset \
+                     --role-arn "$CFN_EXECUTION_ROLE_ARN" \
+                     --parameter-overrides \
+                           TorguapiLayerArn="$TORGUAPI_LAYER_ARN" \
+                           TorguapiLayerVersion="$TORGUAPI_LAYER_VERSION" \
+                           EnvPrefix=\"${ENV_PREFIX}\" \
+                           DataVersion="$DATA_VERSION" \
+                           ApiRoot="$API_ROOT"
+
+  integration:
+    needs: deploy
+    if: github.ref_name == 'dev'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: pipeline/load_env.sh
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ env.READONLY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          mask-aws-account-id: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: pip install -r tests/requirements.txt
+      - run: AWS_SAM_STACK_NAME="$STACK_NAME" make integration_test

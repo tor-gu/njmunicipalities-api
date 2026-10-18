@@ -264,3 +264,9 @@ sandbox.ipynb
 *.tfplan
 # Per-environment backend/tfvars; not a virtualenv despite the env/ rule above
 !infra/env/
+# Per-environment deploy settings for .github/workflows/deploy.yml
+!pipeline/env/
+
+# sam build output in .github/workflows/deploy.yml
+sam-build/
+build.toml

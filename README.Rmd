@@ -129,7 +129,7 @@ the lambdas are updated, which discards anything they cached during the load.
 2. Update the hard-coded current year: `DEFAULT_YEAR` in `municipalities/app/municipalities_lib.py`, the examples
    in `njmunicipalities-openapi.yaml` and in this README (then `make knit`), and the unit tests.
 3. `make load_dry_run ENV=dev` to preview the load.
-4. Push to `dev`, check the dev API, then merge to `master`.
+4. Push to `dev`, check the dev API, then merge to `main`.
 
 ### Direct deploy
 The application can be deployed directly using the SAM CLI. Load the data first, then deploy with the matching
